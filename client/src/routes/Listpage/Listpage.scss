@@ -1,0 +1,40 @@
+.listPage {
+  display: flex;
+  height: 100%;
+
+  .listContainer {
+    flex: 3;
+    height: 100%;
+
+    .wrapper {
+      height: 100vh;
+      padding-right: 50px;
+      display: flex;
+      flex-direction: column;
+      gap: 50px;
+      overflow-y: scroll;
+      padding-bottom: 50px;
+      /* Custom scrollbar */
+      scrollbar-width: thin;
+      scrollbar-color: rgba(0, 0, 0, 0.5) transparent; /* Change colors as needed */
+
+      &::-webkit-scrollbar {
+        width: 8px; /* Adjust as needed */
+      }
+
+      &::-webkit-scrollbar-thumb {
+        background-color: rgba(0, 0, 0, 0.5); /* Adjust color as needed */
+        border-radius: 4px; /* Adjust as needed */
+      }
+
+      &::-webkit-scrollbar-track {
+        background: transparent; /* Adjust as needed */
+      }
+    }
+  }
+  .mapContainer {
+    flex: 2;
+    height: 100%;
+    background-color: #fcf5f3;
+  }
+}
