@@ -8,10 +8,12 @@ import { AuthContext } from "../../context/AuthContext";
 
 const ProfilePage = () => {
   const { updateUser, currentUser } = useContext(AuthContext);
-
-  const navigate = useNavigate();
+  console.log("on line 11");
   console.log(currentUser);
-  console.log(currentUser.data.username);
+  console.log("on line 12");
+  const navigate = useNavigate();
+
+  console.log(currentUser.username);
   const handleLogout = async () => {
     try {
       const res = apiRequest.post("/auth/logout");
@@ -34,19 +36,21 @@ const ProfilePage = () => {
           <div className="info">
             <span>
               Avatar:
-              <img src={currentUser.data.avatar || "./noavatar.jpg"} alt="" />
+              <img src={currentUser.avatar || "./noavatar.jpg"} alt="" />
             </span>
             <span>
-              Username: <b>{currentUser.data.username}</b>
+              Username: <b>{currentUser.username}</b>
             </span>
             <span>
-              E-mail: <b>{currentUser.data.email}</b>
+              E-mail: <b>{currentUser.email}</b>
             </span>
             <button onClick={handleLogout}>Logout</button>
           </div>
           <div className="title">
             <h1>My List</h1>
-            <button>Create New Post</button>
+            <Link to="/post/add">
+              <button>Create New Post</button>
+            </Link>
           </div>
           <List />
           <div className="title">

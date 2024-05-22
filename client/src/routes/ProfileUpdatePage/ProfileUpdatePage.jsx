@@ -9,7 +9,7 @@ import UploadWidget from "../../components/uploadWidget/UploadWidget";
 function ProfileUpdatePage() {
   const { currentUser, updateUser } = useContext(AuthContext);
   const [error, setError] = useState("");
-  const [avatar, setAvatar] = useState(currentUser.data.avatar);
+  const [avatar, setAvatar] = useState([]);
 
   const navigate = useNavigate();
 
@@ -20,11 +20,11 @@ function ProfileUpdatePage() {
     const { username, email, password } = Object.fromEntries(formData);
     console.log(avatar);
     try {
-      const res = await apiRequest.put(`/users/${currentUser.data.id}`, {
+      const res = await apiRequest.put(`/users/${currentUser.id}`, {
         username,
         email,
         password,
-        avatar: avatar,
+        avatar: avatar[0],
       });
       console.log(avatar);
       console.log(res);
@@ -47,7 +47,7 @@ function ProfileUpdatePage() {
               id="username"
               name="username"
               type="text"
-              defaultValue={currentUser.data.username}
+              defaultValue={currentUser.username}
             />
           </div>
           <div className="item">
@@ -56,7 +56,7 @@ function ProfileUpdatePage() {
               id="email"
               name="email"
               type="email"
-              defaultValue={currentUser.data.email}
+              defaultValue={currentUser.email}
             />
           </div>
           <div className="item">
@@ -69,7 +69,7 @@ function ProfileUpdatePage() {
       </div>
       <div className="sideContainer">
         <img
-          src={avatar || currentUser.data.avatar || "/noavatar.jpg"}
+          src={avatar[0] || currentUser.avatar || "/noavatar.jpg"}
           alt=""
           className="avatar"
         />
@@ -82,7 +82,6 @@ function ProfileUpdatePage() {
             folder: "avatars",
           }}
           setState={setAvatar}
-          setAvatar={setAvatar}
         />
       </div>
     </div>
