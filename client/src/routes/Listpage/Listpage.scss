@@ -15,21 +15,21 @@
       overflow-y: scroll;
       padding-bottom: 50px;
       /* Custom scrollbar */
-      scrollbar-width: thin;
-      scrollbar-color: rgba(0, 0, 0, 0.5) transparent; /* Change colors as needed */
+      // scrollbar-width: thin;
+      // scrollbar-color: rgba(0, 0, 0, 0.5) transparent; /* Change colors as needed */
 
-      &::-webkit-scrollbar {
-        width: 8px; /* Adjust as needed */
-      }
+      // &::-webkit-scrollbar {
+      //   width: 8px; /* Adjust as needed */
+      // }
 
-      &::-webkit-scrollbar-thumb {
-        background-color: rgba(0, 0, 0, 0.5); /* Adjust color as needed */
-        border-radius: 4px; /* Adjust as needed */
-      }
+      // &::-webkit-scrollbar-thumb {
+      //   background-color: rgba(0, 0, 0, 0.5); /* Adjust color as needed */
+      //   border-radius: 4px; /* Adjust as needed */
+      // }
 
-      &::-webkit-scrollbar-track {
-        background: transparent; /* Adjust as needed */
-      }
+      // &::-webkit-scrollbar-track {
+      //   background: transparent; /* Adjust as needed */
+      // }
     }
   }
   .mapContainer {
