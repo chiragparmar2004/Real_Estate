@@ -20,6 +20,15 @@ export const getPost = async (req, res) => {
     const id = req.params.id;
     const post = await prisma.post.findUnique({
       where: { id },
+      include: {
+        postDetail: true,
+        user: {
+          select: {
+            username: true,
+            avatar: true,
+          },
+        },
+      },
     });
 
     sendResponse(res, 200, "Fetched Post Successfully", post);
@@ -36,8 +45,11 @@ export const addPost = async (req, res) => {
 
     const newPost = await prisma.post.create({
       data: {
-        ...body,
+        ...body.postData,
         userId: tokenUserId,
+        postDetail: {
+          create: body.postDetail,
+        },
       },
     });
 
@@ -65,8 +77,8 @@ export const deletePost = async (req, res) => {
     const post = await prisma.post.findUnique({
       where: { id },
     });
-
-    if (post.id !== tokenUserId) {
+    console.log(post);
+    if (post.userId !== tokenUserId) {
       return sendResponse(res, 403, "You are not authorized");
     }
 
