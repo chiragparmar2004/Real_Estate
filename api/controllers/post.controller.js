@@ -1,14 +1,28 @@
 import prisma from "../lib/prisma.js";
 import sendResponse from "../lib/responseHelper.js";
+const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
 export const getPosts = async (req, res) => {
+  const query = req.query;
   try {
-    const posts = await prisma.post.findMany();
-    // sendResponse(res, 200, "Fetched Posts Successfully", posts);
+    const posts = await prisma.post.findMany({
+      where: {
+        city: query.city || undefined,
+        type: query.type || undefined,
+        property: query.property || undefined,
+        bedroom: parseInt(query.bedroom) || undefined,
+        price: {
+          gte: parseInt(query.minPrice) || undefined,
+          lte: parseInt(query.maxPrice) || undefined,
+        },
+      },
+    });
+    console.log(posts);
     res.status(200).json({
       message: "Fetched Posts Successfully",
-      data: posts,
+      posts,
     });
+    // res.status(200).json(posts);
   } catch (error) {
     console.log(error);
     sendResponse(res, 500, "Failed to get Posts");
