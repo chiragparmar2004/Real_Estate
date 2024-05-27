@@ -1,26 +1,26 @@
-import { Link, useNavigate } from "react-router-dom";
+import { Await, Link, useLoaderData, useNavigate } from "react-router-dom";
 import Chat from "../../components/Chat/Chat";
 import List from "../../components/list/List";
-import apiRequest from "../../lib/apiRequest";
 import "./profilePage.scss";
-import { useContext } from "react";
+import { Suspense, useContext } from "react";
 import { AuthContext } from "../../context/AuthContext";
+import apiRequest from "../../lib/apiRequest";
 
 const ProfilePage = () => {
+  const data = useLoaderData();
+  console.log(data);
+
   const { updateUser, currentUser } = useContext(AuthContext);
-  console.log("on line 11");
-  console.log(currentUser);
-  console.log("on line 12");
+
   const navigate = useNavigate();
 
-  console.log(currentUser.username);
   const handleLogout = async () => {
     try {
-      const res = apiRequest.post("/auth/logout");
+      await apiRequest.post("/auth/logout");
       updateUser(null);
       navigate("/");
-    } catch (error) {
-      console.log(error);
+    } catch (err) {
+      console.log(err);
     }
   };
   return (
@@ -36,7 +36,7 @@ const ProfilePage = () => {
           <div className="info">
             <span>
               Avatar:
-              <img src={currentUser.avatar || "./noavatar.jpg"} alt="" />
+              <img src={currentUser.avatar || "noavatar.jpg"} alt="" />
             </span>
             <span>
               Username: <b>{currentUser.username}</b>
@@ -48,24 +48,45 @@ const ProfilePage = () => {
           </div>
           <div className="title">
             <h1>My List</h1>
-            <Link to="/post/add">
+            <Link to="/add">
               <button>Create New Post</button>
             </Link>
           </div>
-          <List />
+          <Suspense fallback={<p>Loading...</p>}>
+            <Await
+              resolve={data.postResponse}
+              errorElement={<p>Error loading posts!</p>}
+            >
+              {(postResponse) => <List posts={postResponse.data.userPosts} />}
+            </Await>
+          </Suspense>
           <div className="title">
             <h1>Saved List</h1>
           </div>
-          <List />
+          <Suspense fallback={<p>Loading...</p>}>
+            <Await
+              resolve={data.postResponse}
+              errorElement={<p>Error loading posts!</p>}
+            >
+              {(postResponse) => <List posts={postResponse.data.savedPosts} />}
+            </Await>
+          </Suspense>
         </div>
       </div>
       <div className="chatContainer">
         <div className="wrapper">
+          {/* <Suspense fallback={<p>Loading...</p>}>
+            <Await
+              resolve={data.chatResponse}
+              errorElement={<p>Error loading chats!</p>}
+            >
+              {(chatResponse) => <Chat chats={chatResponse.data}/>}
+            </Await>
+          </Suspense> */}
           <Chat />
         </div>
       </div>
     </div>
   );
 };
-
 export default ProfilePage;

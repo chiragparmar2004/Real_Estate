@@ -47,7 +47,7 @@ function NewPostPage() {
       });
       console.log(res);
       console.log(res.data.data.id);
-      navigate("/" + res.data.id);
+      navigate("/" + res.data.data.id);
     } catch (err) {
       console.log(err);
       setError(error);
