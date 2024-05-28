@@ -1,135 +1,45 @@
 import prisma from "../lib/prisma.js";
 import sendResponse from "../lib/responseHelper.js";
-import bcrypt from "bcrypt";
-import jwt from "jsonwebtoken";
 
-export const getUsers = async (req, res) => {
-  try {
-    const users = await prisma.user.findMany();
-    sendResponse(res, 200, "successfully fetched users", users);
-  } catch (error) {
-    console.log(error);
-    sendResponse(res, 500, " Failed to get users !");
-  }
-};
-
-export const getUser = async (req, res) => {
-  try {
-    const id = req.params.id;
-    const user = await prisma.user.findUnique({
-      where: { id },
-    });
-    sendResponse(res, 200, "successfully fetched user", user);
-  } catch (error) {
-    console.log(error);
-    sendResponse(res, 500, " Failed to get user !");
-  }
-};
-
-export const updateUsers = async (req, res) => {
-  try {
-    const id = req.params.id;
-    const tokenUserId = req.userId;
-    const { password, avatar, ...inputs } = req.body;
-
-    console.log(id);
-    console.log(tokenUserId);
-    if (id !== tokenUserId) {
-      return sendResponse(res, 403, "Not Authorized !");
-    }
-    let updatedPassword = null;
-    if (password) {
-      updatedPassword = await bcrypt.hash(password, 10);
-    }
-
-    const updatedUser = await prisma.user.update({
-      where: { id },
-      data: {
-        ...inputs,
-        ...(updatedPassword && { password: updatedPassword }),
-        ...(avatar && { avatar }),
-      },
-    });
-    const { password: userPassword, ...rest } = updatedUser;
-
-    res.status(200).json(rest);
-  } catch (error) {
-    console.log(error);
-    sendResponse(res, 500, " Failed to update user !");
-  }
-};
-
-export const deleteUsers = async (req, res) => {
-  try {
-    const id = req.params.id;
-    const tokenUserId = req.userId;
-    const { password, avatar, ...inputs } = req.body;
-
-    if (id !== tokenUserId) {
-      return sendResponse(res, 403, "Not Authorized !");
-    }
-
-    await prisma.user.delete({
-      where: { id },
-    });
-    sendResponse(res, 200, "User Deleted Successfully");
-  } catch (error) {
-    console.log(error);
-    sendResponse(res, 500, " Failed to Delete user  !");
-  }
-};
-export const savePost = async (req, res) => {
-  const postId = req.body.postId;
+export const addMessage = async (req, res) => {
+  console.log("Here in add message");
   const tokenUserId = req.userId;
+  const chatId = req.params.chatId;
+  const text = req.body.text;
+
   try {
-    const savedPost = await prisma.savedPost.findUnique({
+    const chat = await prisma.chat.findUnique({
       where: {
-        userId_postId: {
-          userId: tokenUserId,
-          postId,
+        id: chatId,
+        userIDs: {
+          hasSome: [tokenUserId],
         },
       },
     });
 
-    if (savedPost) {
-      await prisma.savedPost.delete({
-        where: {
-          id: savedPost.id,
-        },
-      });
-      sendResponse(res, 200, "Post Removed From Saved list ");
-    } else {
-      await prisma.savedPost.create({
-        data: {
-          userId: tokenUserId,
-          postId,
-        },
-      });
-      sendResponse(res, 200, "Post saved successfully ");
-    }
-  } catch (error) {
-    console.log(error);
-    sendResponse(res, 500, "Failed to delete Post");
-  }
-};
+    if (!chat) return res.status(404).json({ message: "Chat not found!" });
 
-export const profilePosts = async (req, res) => {
-  const tokenUserId = req.userId;
-  try {
-    const userPosts = await prisma.post.findMany({
-      where: { userId: tokenUserId },
-    });
-    const saved = await prisma.savedPost.findMany({
-      where: { userId: tokenUserId },
-      include: {
-        post: true,
+    const message = await prisma.message.create({
+      data: {
+        text,
+        chatId,
+        userId: tokenUserId,
       },
     });
 
-    const savedPosts = saved.map((item) => item.post);
-    res.status(200).json({ userPosts, savedPosts });
+    await prisma.chat.update({
+      where: {
+        id: chatId,
+      },
+      data: {
+        seenBy: [tokenUserId],
+        lastMessage: text,
+      },
+    });
+
+    res.status(200).json(message);
   } catch (err) {
     console.log(err);
-    res.status(500).json({ message: "Failed to get profile posts!" });
+    res.status(500).json({ message: "Failed to add message!" });
   }
 };

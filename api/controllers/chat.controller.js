@@ -1,135 +1,163 @@
 import prisma from "../lib/prisma.js";
 import sendResponse from "../lib/responseHelper.js";
-import bcrypt from "bcrypt";
-import jwt from "jsonwebtoken";
 
-export const getUsers = async (req, res) => {
-  try {
-    const users = await prisma.user.findMany();
-    sendResponse(res, 200, "successfully fetched users", users);
-  } catch (error) {
-    console.log(error);
-    sendResponse(res, 500, " Failed to get users !");
-  }
-};
+// export const getChats = async (req, res) => {
+//   const tokenUserId = req.userId;
 
-export const getUser = async (req, res) => {
-  try {
-    const id = req.params.id;
-    const user = await prisma.user.findUnique({
-      where: { id },
-    });
-    sendResponse(res, 200, "successfully fetched user", user);
-  } catch (error) {
-    console.log(error);
-    sendResponse(res, 500, " Failed to get user !");
-  }
-};
+//   try {
+//     const chats = await prisma.chat.findMany({
+//       where: {
+//         userIDs: {
+//           hasSome: [tokenUserId],
+//         },
+//       },
+//     });
 
-export const updateUsers = async (req, res) => {
-  try {
-    const id = req.params.id;
-    const tokenUserId = req.userId;
-    const { password, avatar, ...inputs } = req.body;
+//     for (const chat of chats) {
+//       const receiverId = chat.userIDs.find((id) => id !== tokenUserId);
 
-    console.log(id);
-    console.log(tokenUserId);
-    if (id !== tokenUserId) {
-      return sendResponse(res, 403, "Not Authorized !");
-    }
-    let updatedPassword = null;
-    if (password) {
-      updatedPassword = await bcrypt.hash(password, 10);
-    }
+//       const receiver = await prisma.user.findUnique({
+//         where: {
+//           id: receiverId,
+//         },
+//         select: {
+//           id: true,
+//           username: true,
+//           avatar: true,
+//         },
+//       });
+//       chat.receiver = receiver;
+//     }
 
-    const updatedUser = await prisma.user.update({
-      where: { id },
-      data: {
-        ...inputs,
-        ...(updatedPassword && { password: updatedPassword }),
-        ...(avatar && { avatar }),
-      },
-    });
-    const { password: userPassword, ...rest } = updatedUser;
+//     res.status(200).json(chats);
+//   } catch (err) {
+//     console.log(err);
+//     res.status(500).json({ message: "Failed to get chats!" });
+//   }
+// };
 
-    res.status(200).json(rest);
-  } catch (error) {
-    console.log(error);
-    sendResponse(res, 500, " Failed to update user !");
-  }
-};
-
-export const deleteUsers = async (req, res) => {
-  try {
-    const id = req.params.id;
-    const tokenUserId = req.userId;
-    const { password, avatar, ...inputs } = req.body;
-
-    if (id !== tokenUserId) {
-      return sendResponse(res, 403, "Not Authorized !");
-    }
-
-    await prisma.user.delete({
-      where: { id },
-    });
-    sendResponse(res, 200, "User Deleted Successfully");
-  } catch (error) {
-    console.log(error);
-    sendResponse(res, 500, " Failed to Delete user  !");
-  }
-};
-export const savePost = async (req, res) => {
-  const postId = req.body.postId;
+export const getChats = async (req, res) => {
   const tokenUserId = req.userId;
+
   try {
-    const savedPost = await prisma.savedPost.findUnique({
+    const chats = await prisma.chat.findMany({
       where: {
-        userId_postId: {
-          userId: tokenUserId,
-          postId,
+        userIDs: {
+          hasSome: [tokenUserId],
         },
       },
     });
 
-    if (savedPost) {
-      await prisma.savedPost.delete({
-        where: {
-          id: savedPost.id,
-        },
-      });
-      sendResponse(res, 200, "Post Removed From Saved list ");
-    } else {
-      await prisma.savedPost.create({
-        data: {
-          userId: tokenUserId,
-          postId,
-        },
-      });
-      sendResponse(res, 200, "Post saved successfully ");
-    }
-  } catch (error) {
-    console.log(error);
-    sendResponse(res, 500, "Failed to delete Post");
+    const receiverIds = chats
+      .map((chat) => chat.userIDs.find((id) => id !== tokenUserId))
+      .filter(Boolean);
+
+    const receivers = await prisma.user.findMany({
+      where: {
+        id: { in: receiverIds },
+      },
+      select: {
+        id: true,
+        username: true,
+        avatar: true,
+      },
+    });
+
+    const receiversMap = receivers.reduce((acc, receiver) => {
+      acc[receiver.id] = receiver;
+      return acc;
+    }, {});
+
+    const enrichedChats = chats.map((chat) => {
+      const receiverId = chat.userIDs.find((id) => id !== tokenUserId);
+      return {
+        ...chat,
+        receiver: receiversMap[receiverId] || null,
+      };
+    });
+
+    res.status(200).json(enrichedChats);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: "Failed to get chats!" });
   }
 };
 
-export const profilePosts = async (req, res) => {
+export const getChat = async (req, res) => {
   const tokenUserId = req.userId;
+
   try {
-    const userPosts = await prisma.post.findMany({
-      where: { userId: tokenUserId },
-    });
-    const saved = await prisma.savedPost.findMany({
-      where: { userId: tokenUserId },
+    const chat = await prisma.chat.findUnique({
+      where: {
+        id: req.params.id,
+        userIDs: {
+          hasSome: [tokenUserId],
+        },
+      },
       include: {
-        post: true,
+        messages: {
+          orderBy: {
+            createdAt: "asc",
+          },
+        },
       },
     });
 
-    const savedPosts = saved.map((item) => item.post);
-    res.status(200).json({ userPosts, savedPosts });
+    await prisma.chat.update({
+      where: {
+        id: req.params.id,
+      },
+      data: {
+        seenBy: {
+          push: [tokenUserId],
+        },
+      },
+    });
+    res.status(200).json(chat);
   } catch (err) {
     console.log(err);
-    res.status(500).json({ message: "Failed to get profile posts!" });
+    res.status(500).json({ message: "Failed to get chat!" });
+  }
+};
+
+export const addChat = async (req, res) => {
+  console.log("here");
+  const tokenUserId = req.userId;
+
+  console.log(req.body.receiverId);
+  try {
+    const newChat = await prisma.chat.create({
+      data: {
+        userIDs: [tokenUserId, req.body.receiverId],
+      },
+    });
+    res.status(200).json(newChat);
+  } catch (err) {
+    console.log(err);
+    res.status(500).json({ message: "Failed to add chat!" });
+  }
+};
+
+export const readChat = async (req, res) => {
+  const tokenUserId = req.userId;
+
+  try {
+    const chat = await prisma.chat.update({
+      where: {
+        id: req.params.id,
+        userIDs: {
+          hasSome: [tokenUserId],
+        },
+      },
+      data: {
+        seenBy: {
+          set: [tokenUserId],
+        },
+      },
+    });
+    res.status(200).json(chat);
+  } catch (err) {
+    console.log(err);
+    res.status(500).json({ message: "Failed to read chat!" });
   }
 };
