@@ -1,6 +1,7 @@
 import express from "express";
 import {
   deleteUsers,
+  getNotificationNumber,
   getUser,
   getUsers,
   profilePosts,
@@ -22,5 +23,7 @@ router.delete("/:id", verifyToken, deleteUsers);
 router.post("/save", verifyToken, savePost);
 
 router.get("/profilePosts", verifyToken, profilePosts);
+
+router.get("/notification", verifyToken, getNotificationNumber);
 
 export default router;

@@ -140,11 +140,13 @@ import { AuthContext } from "../../context/AuthContext";
 import apiRequest from "../../lib/apiRequest";
 import { format } from "timeago.js";
 import { SocketContext } from "../../context/SocketContext";
+import { useNotificationStore } from "../../lib/notifictionStore";
 
 function Chat({ chats }) {
   const [chat, setChat] = useState(null);
   const { currentUser } = useContext(AuthContext);
   const { socket } = useContext(SocketContext);
+  const decrease = useNotificationStore((state) => state.decrease);
 
   const messageEndRef = useRef();
   useEffect(() => {
@@ -154,6 +156,9 @@ function Chat({ chats }) {
   const handleOpenChat = async (id, receiver) => {
     try {
       const res = await apiRequest("/chats/" + id);
+      if (!res.data.seenBy.includes(currentUser.userId)) {
+        decrease();
+      }
       setChat({ ...res.data, receiver });
     } catch (err) {
       console.log(err);
