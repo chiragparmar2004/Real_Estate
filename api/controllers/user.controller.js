@@ -81,7 +81,9 @@ export const deleteUsers = async (req, res) => {
 export const savePost = async (req, res) => {
   const postId = req.body.postId;
   const tokenUserId = req.userId;
+
   try {
+    // Check if the saved post already exists
     const savedPost = await prisma.savedPost.findUnique({
       where: {
         userId_postId: {
@@ -91,25 +93,27 @@ export const savePost = async (req, res) => {
       },
     });
 
+    // If it exists, delete it
     if (savedPost) {
       await prisma.savedPost.delete({
         where: {
           id: savedPost.id,
         },
       });
-      sendResponse(res, 200, "Post Removed From Saved list ");
+      sendResponse(res, 200, "Post removed from saved list");
     } else {
+      // If it doesn't exist, create a new saved post
       await prisma.savedPost.create({
         data: {
           userId: tokenUserId,
           postId,
         },
       });
-      sendResponse(res, 200, "Post saved successfully ");
+      sendResponse(res, 200, "Post saved successfully");
     }
   } catch (error) {
-    console.log(error);
-    sendResponse(res, 500, "Failed to delete Post");
+    console.error(error);
+    sendResponse(res, 500, "Failed to save post");
   }
 };
 

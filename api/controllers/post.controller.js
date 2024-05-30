@@ -80,13 +80,13 @@ export const getPost = async (req, res) => {
         postDetail: true,
         user: {
           select: {
+            id: true,
             username: true,
             avatar: true,
           },
         },
       },
     });
-
     const token = req.cookies?.token;
 
     if (token) {
@@ -134,6 +134,32 @@ export const addPost = async (req, res) => {
   } catch (error) {
     console.log(error);
     sendResponse(res, 500, "Failed to add Post");
+  }
+};
+export const addMultiplePosts = async (req, res) => {
+  try {
+    const posts = req.body.posts; // Expecting an array of posts
+    const tokenUserId = req.userId;
+
+    const createdPosts = await Promise.all(
+      posts.map(async (post) => {
+        const newPost = await prisma.post.create({
+          data: {
+            ...post.postData,
+            userId: tokenUserId,
+            postDetail: {
+              create: post.postDetail,
+            },
+          },
+        });
+        return newPost;
+      })
+    );
+
+    sendResponse(res, 200, "Added Posts Successfully", createdPosts);
+  } catch (error) {
+    console.log(error);
+    sendResponse(res, 500, "Failed to add Posts");
   }
 };
 

@@ -1,8 +1,10 @@
 import { Server } from "socket.io";
 console.log("started");
-const io = new Server(4000, {
+const io = new Server(8081, {
   cors: {
-    origin: "http://localhost:5173",
+    origin: "http://localhost:5173", // Ensure this matches your client URL
+    methods: ["GET", "POST"],
+    credentials: true,
   },
 });
 

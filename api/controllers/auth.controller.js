@@ -4,7 +4,33 @@ import sendResponse from "../lib/responseHelper.js";
 import jwt from "jsonwebtoken";
 import "dotenv/config";
 
+// export const register = async (req, res) => {
+//   console.log("here");
+//   try {
+//     const { username, email, password } = req.body;
+//     // hash the password
+//     const hashedPassword = await bcrypt.hash(password, 10);
+//     console.log(hashedPassword);
+//     // Create a new user and save to DB
+//     const newUser = await prisma.user.create({
+//       data: {
+//         username,
+//         email,
+//         password: hashedPassword,
+//       },
+//     });
+//     console.log(newUser);
+
+//     sendResponse(res, 201, "User Create Successfully");
+//   } catch (error) {
+//     console.log(error);
+
+//     sendResponse(res, 500, "Failed to create the User");
+//   }
+// };
+
 export const register = async (req, res) => {
+  console.log("here");
   try {
     const { username, email, password } = req.body;
     // hash the password
@@ -20,7 +46,7 @@ export const register = async (req, res) => {
     });
     console.log(newUser);
 
-    sendResponse(res, 201, "User Create Successfully");
+    sendResponse(res, 201, "User Created Successfully");
   } catch (error) {
     console.log(error);
 

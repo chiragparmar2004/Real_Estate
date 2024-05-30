@@ -84,6 +84,7 @@ export const getChats = async (req, res) => {
 };
 
 export const getChat = async (req, res) => {
+  console.log("In get Chat");
   const tokenUserId = req.userId;
 
   try {
@@ -113,6 +114,7 @@ export const getChat = async (req, res) => {
         },
       },
     });
+    // console.log(chat);
     res.status(200).json(chat);
   } catch (err) {
     console.log(err);
@@ -120,21 +122,53 @@ export const getChat = async (req, res) => {
   }
 };
 
-export const addChat = async (req, res) => {
-  console.log("here");
-  const tokenUserId = req.userId;
+// export const addChat = async (req, res) => {
+//   console.log("here");
+//   const tokenUserId = req.userId;
 
-  console.log(req.body.receiverId);
+//   console.log(req.body.receiverId);
+//   try {
+//     const newChat = await prisma.chat.create({
+//       data: {
+//         userIDs: [tokenUserId, req.body.receiverId],
+//       },
+//     });
+//     res.status(200).json(newChat);
+//   } catch (err) {
+//     console.log(err);
+//     res.status(500).json({ message: "Failed to add chat!" });
+//   }
+// };
+
+export const addChat = async (req, res) => {
+  const tokenUserId = req.userId;
+  const receiverId = req.body.receiverId;
+
   try {
-    const newChat = await prisma.chat.create({
-      data: {
-        userIDs: [tokenUserId, req.body.receiverId],
+    // Check if a chat already exists between the two users
+    const existingChat = await prisma.chat.findFirst({
+      where: {
+        userIDs: {
+          hasEvery: [tokenUserId, receiverId], // Check if both user IDs are in the userIDs array
+        },
       },
     });
-    res.status(200).json(newChat);
+
+    if (existingChat) {
+      // If a chat already exists, return the existing chat
+      return res.status(200).json(existingChat);
+    } else {
+      // If no chat exists, create a new chat
+      const newChat = await prisma.chat.create({
+        data: {
+          userIDs: [tokenUserId, receiverId],
+        },
+      });
+      return res.status(200).json(newChat);
+    }
   } catch (err) {
     console.log(err);
-    res.status(500).json({ message: "Failed to add chat!" });
+    return res.status(500).json({ message: "Failed to add chat!" });
   }
 };
 

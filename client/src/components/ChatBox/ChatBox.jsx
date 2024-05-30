@@ -1,0 +1,123 @@
+import noAvatar from "../../../public/noavatar.jpg";
+import { useContext, useEffect, useRef, useState } from "react";
+import { format } from "timeago.js";
+import "./ChatBox.scss";
+import apiRequest from "../../lib/apiRequest";
+import { SocketContext } from "../../context/SocketContext";
+import { AuthContext } from "../../context/AuthContext";
+import axios from "axios";
+
+const ChatBox = ({ setShowChatBox, chatData, receiver, currentChat }) => {
+  //   const [chat, setChat] = useState(null);
+  const [chatMessages, setChatMessages] = useState([]);
+  const messageEndRef = useRef(null);
+
+  const { socket } = useContext(SocketContext);
+  const { currentUser } = useContext(AuthContext);
+
+  const chatReceiver = currentChat?.receiver || receiver;
+  const chatId = currentChat ? currentChat.id : chatData.id;
+
+  useEffect(() => {
+    if (messageEndRef.current) {
+      messageEndRef.current.scrollIntoView({ behavior: "smooth" });
+    }
+  }, [chatMessages]);
+
+  useEffect(() => {
+    const fetchChat = async () => {
+      try {
+        const res = await apiRequest.get(`/chats/${chatId}`);
+        setChatMessages(res.data.messages || []);
+      } catch (err) {
+        console.log(err);
+      }
+    };
+    fetchChat();
+  }, [chatId]);
+
+  useEffect(() => {
+    socket.on("getMessage", (message) => {
+      setChatMessages((prevMessages) => [...prevMessages, message]);
+    });
+
+    return () => {
+      socket.off("getMessage");
+    };
+  }, [socket]);
+
+  const sendMessage = async (text) => {
+    try {
+      const res = await apiRequest.post(`/messages/${chatId}`, { text });
+      setChatMessages((prevMessages) => [...prevMessages, res.data]);
+      socket.emit("sendMessage", {
+        receiverId: chatReceiver.id,
+        data: res.data,
+      });
+    } catch (err) {
+      console.log(err);
+    }
+  };
+
+  const handleFormSubmit = async (e) => {
+    e.preventDefault();
+    const formData = new FormData(e.target);
+    const text = formData.get("text");
+    if (!text) return;
+
+    // if (newChat) {
+    //   try {
+    //     const res = await apiRequest.post("/chats", {
+    //       receiverId: chatReceiver.id,
+    //     });
+    //     setChat(res.data);
+    //     setNewChat(false);
+    //   } catch (error) {
+    //     console.error("Failed to create new chat:", error);
+    //   }
+    // }
+
+    await sendMessage(text);
+    e.target.reset();
+  };
+
+  return (
+    <div className="chatBox">
+      <div className="top">
+        <div className="user">
+          <img
+            src={chatReceiver.avatar || noAvatar}
+            alt={chatReceiver.username}
+          />
+          {chatReceiver.username}
+        </div>
+        <span className="close" onClick={() => setShowChatBox(false)}>
+          X
+        </span>
+      </div>
+      <div className="center">
+        {chatMessages.map((message) => (
+          <div
+            className="chatMessage"
+            style={{
+              alignSelf:
+                message.userId === currentUser.id ? "flex-end" : "flex-start",
+              textAlign: message.userId === currentUser.id ? "right" : "left",
+            }}
+            key={message.id}
+          >
+            <p>{message.text}</p>
+            <span>{format(message.createdAt)}</span>
+          </div>
+        ))}
+        <div ref={messageEndRef}></div>
+      </div>
+      <form onSubmit={handleFormSubmit} className="bottom">
+        <textarea name="text"></textarea>
+        <button type="submit">Send</button>
+      </form>
+    </div>
+  );
+};
+
+export default ChatBox;
