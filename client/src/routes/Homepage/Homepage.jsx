@@ -1,24 +1,7 @@
-import { useContext } from "react";
 import SearchBar from "../../components/Searchbar/SearchBar";
 import "./Homepage.scss";
-import { AuthContext } from "../../context/AuthContext";
-import axios from "axios";
 
 const Homepage = () => {
-  const { currentUser } = useContext(AuthContext);
-
-  console.log(currentUser);
-  const getImages = async () => {
-    try {
-      const response = await axios.get("http://localhost:8080/images");
-      console.log(response.data); // Log the data property of the response
-    } catch (error) {
-      console.error(error);
-    }
-  };
-
-  getImages();
-
   return (
     <div className="homePage">
       <div className="textContainer">

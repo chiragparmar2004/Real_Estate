@@ -32,9 +32,8 @@ export const SocketContext = createContext();
 export const SocketContextProvider = ({ children }) => {
   const { currentUser } = useContext(AuthContext);
   const [socket, setSocket] = useState(null);
-
   useEffect(() => {
-    const newSocket = io("http://localhost:8081", {
+    const newSocket = io(import.meta.env.VITE_REACT_APP_SERVER_URL, {
       transports: ["polling", "websocket"],
       withCredentials: true,
     });
