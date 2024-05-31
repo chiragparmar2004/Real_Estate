@@ -7,6 +7,7 @@ import { SocketContext } from "../../context/SocketContext";
 import { AuthContext } from "../../context/AuthContext";
 
 const ChatBox = ({ setShowChatBox, chatData, receiver, currentChat }) => {
+  console.log(chatData);
   const [chatMessages, setChatMessages] = useState([]);
   const messageEndRef = useRef(null);
 
@@ -15,7 +16,7 @@ const ChatBox = ({ setShowChatBox, chatData, receiver, currentChat }) => {
 
   const chatReceiver = currentChat?.receiver || receiver;
   const chatId = currentChat ? currentChat.id : chatData.id;
-
+  console.log(chatId, "chatId");
   useEffect(() => {
     if (messageEndRef.current) {
       messageEndRef.current.scrollIntoView({ behavior: "smooth" });

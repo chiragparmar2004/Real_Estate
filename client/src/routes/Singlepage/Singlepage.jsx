@@ -23,7 +23,7 @@ const Singlepage = () => {
     try {
       console.log("in the form");
 
-      const res = await apiRequest.post("/chats", {
+      const res = await apiRequest().post("/chats", {
         receiverId: post.user.id,
       });
 
