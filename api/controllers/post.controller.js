@@ -18,7 +18,7 @@ export const getPosts = async (req, res) => {
         },
       },
     });
-    console.log(posts);
+    // console.log(posts);
     res.status(200).json({
       message: "Fetched Posts Successfully",
       posts,

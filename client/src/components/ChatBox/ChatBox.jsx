@@ -5,10 +5,8 @@ import "./ChatBox.scss";
 import apiRequest from "../../lib/apiRequest";
 import { SocketContext } from "../../context/SocketContext";
 import { AuthContext } from "../../context/AuthContext";
-import axios from "axios";
 
 const ChatBox = ({ setShowChatBox, chatData, receiver, currentChat }) => {
-  //   const [chat, setChat] = useState(null);
   const [chatMessages, setChatMessages] = useState([]);
   const messageEndRef = useRef(null);
 
@@ -44,7 +42,7 @@ const ChatBox = ({ setShowChatBox, chatData, receiver, currentChat }) => {
     return () => {
       socket.off("getMessage");
     };
-  }, [socket]);
+  }, [socket, chatReceiver.id]);
 
   const sendMessage = async (text) => {
     try {
@@ -65,18 +63,6 @@ const ChatBox = ({ setShowChatBox, chatData, receiver, currentChat }) => {
     const text = formData.get("text");
     if (!text) return;
 
-    // if (newChat) {
-    //   try {
-    //     const res = await apiRequest.post("/chats", {
-    //       receiverId: chatReceiver.id,
-    //     });
-    //     setChat(res.data);
-    //     setNewChat(false);
-    //   } catch (error) {
-    //     console.error("Failed to create new chat:", error);
-    //   }
-    // }
-
     await sendMessage(text);
     e.target.reset();
   };
@@ -89,7 +75,9 @@ const ChatBox = ({ setShowChatBox, chatData, receiver, currentChat }) => {
             src={chatReceiver.avatar || noAvatar}
             alt={chatReceiver.username}
           />
-          {chatReceiver.username}
+          <div>
+            <span>{chatReceiver.username}</span>
+          </div>
         </div>
         <span className="close" onClick={() => setShowChatBox(false)}>
           X
@@ -98,12 +86,9 @@ const ChatBox = ({ setShowChatBox, chatData, receiver, currentChat }) => {
       <div className="center">
         {chatMessages.map((message) => (
           <div
-            className="chatMessage"
-            style={{
-              alignSelf:
-                message.userId === currentUser.id ? "flex-end" : "flex-start",
-              textAlign: message.userId === currentUser.id ? "right" : "left",
-            }}
+            className={`chatMessage ${
+              message.userId === currentUser.id ? "right" : "left"
+            }`}
             key={message.id}
           >
             <p>{message.text}</p>

@@ -31,39 +31,7 @@ app.use("/api/users", userRoute);
 app.use("/api/chats", chatRoute);
 app.use("/api/messages", messageRoute);
 app.get("/", (req, res) => {
-  res.send("<h1>Hello</h1>");
-});
-app.get("/images", async (req, res) => {
-  // try {
-  //   const response = await axios.get(
-  //     "https://api.pexels.com/v1/search?query=house%20interior&per_page=20",
-  //     {
-  //       headers: {
-  //         Authorization:
-  //           "Bearer L4FHE5ZoZ2sdN01seGcJIFKVqW8DRCDG3OnLKocmEWAjFdXZNFixoOpz",
-  //       },
-  //     }
-  //   );
-
-  //   res.json(response.data);
-  // } catch (error) {
-  //   console.error(error);
-  //   res.status(500).json({ error: "Internal server error" });
-  // }
-  const access_token =
-    "L4FHE5ZoZ2sdN01seGcJIFKVqW8DRCDG3OnLKocmEWAjFdXZNFixoOpz";
-  axios
-    .get("https://api.pexels.com/v1/search?query=house interior&per_page=3", {
-      headers: {
-        Authorization: `token ${access_token}`,
-      },
-    })
-    .then((res) => {
-      console.log(res.data);
-    })
-    .catch((error) => {
-      console.error(error);
-    });
+  res.send("<h1>Hello There this is backend of chirag project</h1>");
 });
 
 app.listen(PORT, () => {

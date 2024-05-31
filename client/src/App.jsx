@@ -13,6 +13,7 @@ import {
   profilePageLoader,
   singlePageLoader,
 } from "./lib/loader";
+import ExplorePage from "./routes/ExplorePage/ExplorePage";
 function App() {
   const router = createBrowserRouter([
     {
@@ -45,6 +46,11 @@ function App() {
         {
           path: "/profile",
           element: <ProfilePage />,
+        },
+        {
+          path: "/explore",
+          element: <ExplorePage />,
+          loader: listPageLoader,
         },
       ],
     },

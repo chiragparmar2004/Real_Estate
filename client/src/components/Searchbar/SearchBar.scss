@@ -42,6 +42,7 @@
       border: none;
       padding: 0px 10px;
       width: 200px;
+      height: 100%;
 
       @include lg {
         padding: 0px 5px;
@@ -60,7 +61,7 @@
       }
 
       @include sm {
-        width: auto;
+        width: 100%;
         &:nth-child(2),
         &:nth-child(3) {
           width: auto;
@@ -89,6 +90,36 @@
         img {
           width: 24px;
           height: 24px;
+        }
+      }
+    }
+  }
+
+  .input-group {
+    position: relative;
+
+    .suggestions {
+      position: absolute;
+      width: 100%;
+      top: 100%;
+      left: 0;
+      right: 0;
+      border: 1px solid #999;
+      border-top: none;
+      background-color: white;
+      max-height: 200px;
+      overflow-y: auto;
+      z-index: 10;
+      list-style: none;
+      margin: 0;
+      padding: 0;
+
+      li {
+        padding: 10px;
+        cursor: pointer;
+
+        &:hover {
+          background-color: #f0f0f0;
         }
       }
     }

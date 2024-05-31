@@ -84,7 +84,7 @@ export const getChats = async (req, res) => {
 };
 
 export const getChat = async (req, res) => {
-  console.log("In get Chat");
+  // console.log("In get Chat");
   const tokenUserId = req.userId;
 
   try {
