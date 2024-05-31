@@ -20,7 +20,7 @@ function ProfileUpdatePage() {
     const { username, email, password } = Object.fromEntries(formData);
     console.log(avatar);
     try {
-      const res = await apiRequest.put(`/users/${currentUser.id}`, {
+      const res = await apiRequest().put(`/users/${currentUser.id}`, {
         username,
         email,
         password,

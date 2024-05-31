@@ -20,7 +20,7 @@ function NewPostPage() {
     const inputs = Object.fromEntries(formData);
 
     try {
-      const res = await apiRequest.post("/post", {
+      const res = await apiRequest().post("/post", {
         postData: {
           title: inputs.title,
           price: parseInt(inputs.price),

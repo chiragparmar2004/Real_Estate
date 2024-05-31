@@ -25,7 +25,7 @@ const ChatBox = ({ setShowChatBox, chatData, receiver, currentChat }) => {
   useEffect(() => {
     const fetchChat = async () => {
       try {
-        const res = await apiRequest.get(`/chats/${chatId}`);
+        const res = await apiRequest().get(`/chats/${chatId}`);
         setChatMessages(res.data.messages || []);
       } catch (err) {
         console.log(err);
@@ -46,7 +46,7 @@ const ChatBox = ({ setShowChatBox, chatData, receiver, currentChat }) => {
 
   const sendMessage = async (text) => {
     try {
-      const res = await apiRequest.post(`/messages/${chatId}`, { text });
+      const res = await apiRequest().post(`/messages/${chatId}`, { text });
       setChatMessages((prevMessages) => [...prevMessages, res.data]);
       socket.emit("sendMessage", {
         receiverId: chatReceiver.id,

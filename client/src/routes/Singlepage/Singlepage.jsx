@@ -45,7 +45,7 @@ const Singlepage = () => {
     }
     setSaved((prev) => !prev);
     try {
-      await apiRequest.post("/users/save", { postId: post.id });
+      await apiRequest().post("/users/save", { postId: post.id });
     } catch (err) {
       console.log(err);
       setSaved((prev) => !prev);
