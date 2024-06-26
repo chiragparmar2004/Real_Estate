@@ -1,9 +1,8 @@
-import "./register.scss";
-import { Link, useNavigate } from "react-router-dom";
-// import axios from "axios";
 import { useState } from "react";
+import { toast } from "react-hot-toast";
+import { Link, useNavigate } from "react-router-dom";
+import "./register.scss";
 import apiRequest from "../../lib/apiRequest";
-// import apiRequest from "../../lib/apiRequest";
 
 function Register() {
   const [error, setError] = useState("");
@@ -21,22 +20,27 @@ function Register() {
     const email = formData.get("email");
     const password = formData.get("password");
 
+    const loadingToast = toast.loading("Creating account...");
+
     try {
-      const res = await apiRequest().post("/auth/register", {
+      await apiRequest().post("/auth/register", {
         username,
         email,
         password,
       });
 
-      console.log(res);
+      toast.success("Account created successfully!", { id: loadingToast });
       navigate("/login");
     } catch (err) {
-      console.log(err);
-      setError(err.response.data.message);
+      toast.error(err.response?.data?.message || "Registration failed!", {
+        id: loadingToast,
+      });
+      setError(err.response?.data?.message);
     } finally {
       setIsLoading(false);
     }
   };
+
   return (
     <div className="registerPage">
       <div className="formContainer">

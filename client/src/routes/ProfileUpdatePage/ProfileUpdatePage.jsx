@@ -4,13 +4,12 @@ import { AuthContext } from "../../context/AuthContext";
 import apiRequest from "../../lib/apiRequest";
 import { useNavigate } from "react-router-dom";
 import UploadWidget from "../../components/uploadWidget/UploadWidget";
-// import UploadWidget from "../../components/uploadWidget/UploadWidget";
+import { toast } from "react-hot-toast";
 
 function ProfileUpdatePage() {
   const { currentUser, updateUser } = useContext(AuthContext);
   const [error, setError] = useState("");
   const [avatar, setAvatar] = useState([]);
-
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
@@ -18,7 +17,7 @@ function ProfileUpdatePage() {
     const formData = new FormData(e.target);
 
     const { username, email, password } = Object.fromEntries(formData);
-    console.log(avatar);
+
     try {
       const res = await apiRequest().put(`/users/${currentUser.id}`, {
         username,
@@ -26,13 +25,23 @@ function ProfileUpdatePage() {
         password,
         avatar: avatar[0],
       });
-      console.log(avatar);
-      console.log(res);
+
       updateUser(res.data);
       navigate("/profile");
+
+      // Show success toast
+      toast.success("Profile updated successfully!", {
+        duration: 4000, // 4 seconds
+        position: "top-right",
+      });
     } catch (err) {
-      console.log(err);
-      //   setError(err.response.data.message);
+      console.error(err);
+      setError("Error updating profile");
+      // Show error toast
+      toast.error("Failed to update profile. Please try again.", {
+        duration: 4000, // 4 seconds
+        position: "top-right",
+      });
     }
   };
 
@@ -64,7 +73,7 @@ function ProfileUpdatePage() {
             <input id="password" name="password" type="password" />
           </div>
           <button>Update</button>
-          {error && <span>error</span>}
+          {error && <span>{error}</span>}
         </form>
       </div>
       <div className="sideContainer">

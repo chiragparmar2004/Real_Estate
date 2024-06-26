@@ -2,7 +2,6 @@
 
 nav {
   height: 100px;
-
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -16,7 +15,9 @@ nav {
     }
 
     &:hover {
-      scale: 1.05;
+      transform: scale(
+        1.15
+      ); // Changed from scale: 1.05 to transform: scale(1.05)
     }
   }
 
@@ -60,12 +61,16 @@ nav {
     @include md {
       background-color: transparent;
     }
-
     a {
       padding: 12px 24px;
       margin: 20px;
-    }
+      position: relative; // Added to ensure correct positioning
+      z-index: 1; // Added to bring links to the front
 
+      &:hover {
+        font-weight: bold;
+      }
+    }
     .user {
       display: flex;
       align-items: center;
@@ -89,6 +94,11 @@ nav {
         padding: 12px 24px;
         background-color: #fece51;
         cursor: pointer;
+        &:hover {
+          background-color: black;
+          color: white;
+        }
+
         border: none;
         position: relative;
 

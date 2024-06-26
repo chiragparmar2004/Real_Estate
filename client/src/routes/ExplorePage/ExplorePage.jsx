@@ -2,33 +2,88 @@ import "./ExplorePage.scss";
 import Filter from "../../components/Filter/Filter";
 import Card from "../../components/Card/Card";
 import Map from "../../components/Map/Map";
-import { Await, useLoaderData } from "react-router-dom";
-import { Suspense } from "react";
+import { Await, useLoaderData, useNavigate } from "react-router-dom";
+import { Suspense, useState, useEffect } from "react";
+import { MagnifyingGlass } from "react-loader-spinner";
+
 const ExplorePage = () => {
+  const navigate = useNavigate();
+  const [loading, setLoading] = useState(true);
   const data = useLoaderData();
-  console.log(data);
+
+  useEffect(() => {
+    setLoading(false);
+  }, [data]);
+
+  const handleSearch = (query) => {
+    setLoading(true);
+    navigate({ search: new URLSearchParams(query).toString() });
+  };
+
   return (
     <div className="listPage">
       <div className="listContainer">
         <div className="wrapper">
-          <Filter />
-          <Suspense fallback={<p>Loading</p>}>
-            <Await
-              resolve={data.postResponse}
-              errorElement={<p>Error loading posts!</p>}
+          <Filter onSearch={handleSearch} />
+          {loading ? (
+            <div className="loader-container">
+              <MagnifyingGlass
+                visible={true}
+                height="80"
+                width="80"
+                ariaLabel="magnifying-glass-loading"
+                glassColor="#c0efff"
+                color="#e15b64"
+              />
+            </div>
+          ) : (
+            <Suspense
+              fallback={
+                <div className="loader-container">
+                  <MagnifyingGlass
+                    visible={true}
+                    height="80"
+                    width="80"
+                    ariaLabel="magnifying-glass-loading"
+                    glassColor="#c0efff"
+                    color="#e15b64"
+                  />
+                </div>
+              }
             >
-              {(postResponse) => {
-                console.log(postResponse.data.posts); // Logging can stay here, outside of return
-                return postResponse.data.posts.map((post) => (
-                  <Card key={post.id} item={post} />
-                ));
-              }}
-            </Await>
-          </Suspense>
+              <Await
+                resolve={data.postResponse}
+                errorElement={<p>Error loading posts!</p>}
+              >
+                {(postResponse) => {
+                  const posts = postResponse.data.posts;
+                  if (posts.length === 0) {
+                    return <p>No items found for your search</p>;
+                  }
+                  return posts.map((post) => (
+                    <Card key={post.id} item={post} />
+                  ));
+                }}
+              </Await>
+            </Suspense>
+          )}
         </div>
       </div>
       <div className="mapContainer">
-        <Suspense fallback={<p>Loading</p>}>
+        <Suspense
+          fallback={
+            <div className="loader-container">
+              <MagnifyingGlass
+                visible={true}
+                height="80"
+                width="80"
+                ariaLabel="magnifying-glass-loading"
+                glassColor="#c0efff"
+                color="#e15b64"
+              />
+            </div>
+          }
+        >
           <Await
             resolve={data.postResponse}
             errorElement={<p>Error loading posts!</p>}
@@ -40,4 +95,5 @@ const ExplorePage = () => {
     </div>
   );
 };
+
 export default ExplorePage;

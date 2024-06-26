@@ -10,10 +10,11 @@ export const verifyToken = (req, res, next) => {
   // Assuming the token is sent as a Bearer token in the Authorization header
   const token = authHeader.split(" ")[1]; // Remove the "Bearer " part
 
-  if (!token) return sendResponse(res, 401, "Not Authenticated!");
-
   jwt.verify(token, process.env.JWT_SECRET_KEY, async (err, payload) => {
-    if (err) return sendResponse(res, 403, "Token is not valid");
+    if (err) {
+      console.log(err);
+      return sendResponse(res, 403, "Token is not valid");
+    }
     req.userId = payload.id;
     next();
   });

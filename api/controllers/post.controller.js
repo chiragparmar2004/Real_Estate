@@ -18,11 +18,13 @@ export const getPosts = async (req, res) => {
         },
       },
     });
-    // console.log(posts);
+
     res.status(200).json({
       message: "Fetched Posts Successfully",
       posts,
     });
+    // console.log(posts);
+
     // res.status(200).json(posts);
   } catch (error) {
     console.log(error);

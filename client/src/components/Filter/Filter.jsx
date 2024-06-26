@@ -1,9 +1,10 @@
 import { useSearchParams } from "react-router-dom";
 import "./Filter.scss";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import axios from "axios";
 
-function Filter() {
-  const [searchParams, setSearchParams] = useSearchParams();
+function Filter({ onSearch }) {
+  const [searchParams] = useSearchParams();
   const [query, setQuery] = useState({
     type: searchParams.get("type") || "",
     city: searchParams.get("city") || "",
@@ -13,15 +14,55 @@ function Filter() {
     bedroom: searchParams.get("bedroom") || "",
   });
 
+  const [allCities, setAllCities] = useState([]);
+  const [suggestions, setSuggestions] = useState([]);
+  const [showSuggestions, setShowSuggestions] = useState(false);
+
+  useEffect(() => {
+    const fetchCities = async () => {
+      try {
+        const response = await axios.get(
+          "https://countriesnow.space/api/v0.1/countries"
+        );
+        const cities = response.data.data.flatMap((country) => country.cities);
+        setAllCities(cities);
+      } catch (error) {
+        console.error("Error fetching cities:", error);
+      }
+    };
+
+    fetchCities();
+  }, []);
+
   const handleChange = (e) => {
+    const { name, value } = e.target;
     setQuery({
       ...query,
-      [e.target.name]: e.target.value,
+      [name]: value,
     });
+
+    if (name === "city") {
+      if (value.length > 2) {
+        const filteredCities = allCities.filter((city) =>
+          city.toLowerCase().startsWith(value.toLowerCase())
+        );
+        setSuggestions(filteredCities);
+        setShowSuggestions(true);
+      } else {
+        setSuggestions([]);
+        setShowSuggestions(false);
+      }
+    }
+  };
+
+  const handleSuggestionClick = (city) => {
+    setQuery((prev) => ({ ...prev, city }));
+    setSuggestions([]);
+    setShowSuggestions(false);
   };
 
   const handleFilter = () => {
-    setSearchParams(query);
+    onSearch(query);
   };
 
   return (
@@ -32,14 +73,30 @@ function Filter() {
       <div className="top">
         <div className="item">
           <label htmlFor="city">Location</label>
-          <input
-            type="text"
-            id="city"
-            name="city"
-            placeholder="City Location"
-            onChange={handleChange}
-            defaultValue={query.city}
-          />
+          <div className="input-group">
+            <input
+              type="text"
+              id="city"
+              name="city"
+              placeholder="City Location"
+              onChange={handleChange}
+              value={query.city}
+              onBlur={() => setShowSuggestions(false)}
+              onFocus={() => query.city && setShowSuggestions(true)}
+            />
+            {showSuggestions && suggestions.length > 0 && (
+              <ul className="suggestions">
+                {suggestions.map((suggestion, index) => (
+                  <li
+                    key={index}
+                    onMouseDown={() => handleSuggestionClick(suggestion)}
+                  >
+                    {suggestion}
+                  </li>
+                ))}
+              </ul>
+            )}
+          </div>
         </div>
       </div>
       <div className="bottom">
@@ -49,7 +106,7 @@ function Filter() {
             name="type"
             id="type"
             onChange={handleChange}
-            defaultValue={query.type}
+            value={query.type}
           >
             <option value="">any</option>
             <option value="buy">Buy</option>
@@ -62,7 +119,7 @@ function Filter() {
             name="property"
             id="property"
             onChange={handleChange}
-            defaultValue={query.property}
+            value={query.property}
           >
             <option value="">any</option>
             <option value="apartment">Apartment</option>
@@ -79,7 +136,7 @@ function Filter() {
             name="minPrice"
             placeholder="any"
             onChange={handleChange}
-            defaultValue={query.minPrice}
+            value={query.minPrice}
           />
         </div>
         <div className="item">
@@ -90,7 +147,7 @@ function Filter() {
             name="maxPrice"
             placeholder="any"
             onChange={handleChange}
-            defaultValue={query.maxPrice}
+            value={query.maxPrice}
           />
         </div>
         <div className="item">
@@ -101,7 +158,7 @@ function Filter() {
             name="bedroom"
             placeholder="any"
             onChange={handleChange}
-            defaultValue={query.bedroom}
+            value={query.bedroom}
           />
         </div>
         <button onClick={handleFilter}>

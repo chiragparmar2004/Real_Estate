@@ -1,40 +1,48 @@
 .listPage {
   display: flex;
   height: 100%;
+}
 
-  .listContainer {
-    flex: 3;
-    height: 100%;
+.listContainer {
+  flex: 3;
+  height: 100%;
 
-    .wrapper {
-      height: 100vh;
-      padding-right: 50px;
+  .wrapper {
+    height: 100vh;
+    padding-right: 50px;
+    display: flex;
+    flex-direction: column;
+    gap: 50px;
+    overflow-y: scroll;
+    padding-bottom: 50px;
+
+    .loader-container {
       display: flex;
-      flex-direction: column;
-      gap: 50px;
-      overflow-y: scroll;
-      padding-bottom: 50px;
-      /* Custom scrollbar */
-      // scrollbar-width: thin;
-      // scrollbar-color: rgba(0, 0, 0, 0.5) transparent; /* Change colors as needed */
-
-      // &::-webkit-scrollbar {
-      //   width: 8px; /* Adjust as needed */
-      // }
-
-      // &::-webkit-scrollbar-thumb {
-      //   background-color: rgba(0, 0, 0, 0.5); /* Adjust color as needed */
-      //   border-radius: 4px; /* Adjust as needed */
-      // }
-
-      // &::-webkit-scrollbar-track {
-      //   background: transparent; /* Adjust as needed */
-      // }
+      justify-content: center;
+      align-items: center;
+      height: 100vh; /* Adjust this value as needed */
     }
   }
-  .mapContainer {
-    flex: 2;
-    height: 100%;
-    background-color: #fcf5f3;
+}
+
+.mapContainer {
+  flex: 2;
+  height: 100%;
+  background-color: #fcf5f3;
+  background-image: url("https://images.pexels.com/photos/3747562/pexels-photo-3747562.jpeg?auto=compress&cs=tinysrgb&w=600"); /* Update the path */
+  background-size: cover;
+  background-position: center;
+  border-radius: 4%;
+  position: relative;
+
+  .loader-container {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh; /* Adjust this value as needed */
   }
 }

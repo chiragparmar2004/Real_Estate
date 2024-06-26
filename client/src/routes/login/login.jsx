@@ -1,4 +1,5 @@
 import { useContext, useState } from "react";
+import { toast } from "react-hot-toast";
 import "./login.scss";
 import { Link, useNavigate } from "react-router-dom";
 import apiRequest from "../../lib/apiRequest";
@@ -21,21 +22,27 @@ function Login() {
     const username = formData.get("username");
     const password = formData.get("password");
 
+    const loadingToast = toast.loading("Logging in...");
+
     try {
       const res = await apiRequest().post("/auth/login", {
         username,
         password,
       });
 
-      // localStorage.setItem("user", JSON.stringify(res.data));
       updateUser(res.data);
+      toast.success("Login successful!", { id: loadingToast });
       navigate("/");
     } catch (err) {
+      toast.error(err.response.data.message || "Login failed!", {
+        id: loadingToast,
+      });
       setError(err.response.data.message);
     } finally {
       setIsLoading(false);
     }
   };
+
   return (
     <div className="login">
       <div className="formContainer">
