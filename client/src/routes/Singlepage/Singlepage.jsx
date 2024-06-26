@@ -171,7 +171,7 @@ const Singlepage = () => {
             />
           ) : (
             <>
-              <div className="mapContainer">
+              <div className="mapContainer2">
                 <Map items={[post]} />
               </div>
               <div className="buttons">
