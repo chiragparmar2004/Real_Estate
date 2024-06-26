@@ -1,6 +1,6 @@
 # Real Estate Management Platform
 
-![Real Estate Banner](./public/images/HomePage.png)
+![Real Estate Banner](./client/public/images/HomePage.png)
 
 Welcome to our Real Estate Management Platform! This project offers a seamless experience for users looking to buy or rent properties. Dive into advanced browsing, filtering, and direct communication features that make property management easier than ever.
 
