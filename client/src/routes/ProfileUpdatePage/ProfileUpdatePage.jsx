@@ -26,14 +26,14 @@ function ProfileUpdatePage() {
         avatar: avatar[0],
       });
 
-      updateUser(res.data);
+      updateUser({
+        ...currentUser,
+        userInfo: res.data,
+      });
       navigate("/profile");
 
       // Show success toast
-      toast.success("Profile updated successfully!", {
-        duration: 4000, // 4 seconds
-        position: "top-right",
-      });
+      toast.success("Profile updated successfully!");
     } catch (err) {
       console.error(err);
       setError("Error updating profile");
